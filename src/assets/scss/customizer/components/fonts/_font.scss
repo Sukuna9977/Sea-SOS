@@ -1,0 +1,12 @@
+// Font customizations for Sea-SOS
+// Import font variables and mixins
+
+@import "../../../hope-ui-design-system/variables/fonts";
+
+// Custom font settings
+$custom-font-primary: 'Inter', sans-serif;
+$custom-font-secondary: 'Poppins', sans-serif;
+
+// Font size helpers
+.text-custom-lg { font-size: 1.125rem; }
+.text-custom-sm { font-size: 0.875rem; }
