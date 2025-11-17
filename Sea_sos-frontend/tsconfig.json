@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {  
+      "allowJs": true,       // Allow JavaScript files to be part of the project
+      "noEmit": true,        // Prevent TypeScript from emitting compiled output files
+      "jsx": "react",        // For React projects
+      "target": "ES6",       // Set JavaScript target version
+      "module": "ESNext",    // Use modern module system
+      "moduleResolution": "Node"
+    },
+    "include": ["src"],// Include only the `src` directory
+    "exclude": ["node_modules", "build"] // Exclude unwanted directories
+  }
