@@ -14,11 +14,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Setup Node.js for Backend
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'yarn'
+        cache-dependency-path: 'Sea_sos-backend/yarn.lock'
 
     - name: Backend - Install dependencies
       run: |
@@ -29,6 +30,13 @@ jobs:
       run: |
         cd Sea_sos-backend
         yarn test || echo "No tests configured"
+
+    - name: Setup Node.js for Frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'yarn'
+        cache-dependency-path: 'Sea_sos-frontend/yarn.lock'
 
     - name: Frontend - Install dependencies
       run: |
@@ -45,5 +53,5 @@ jobs:
         docker build -t sea-sos-backend ./Sea_sos-backend
         docker build -t sea-sos-frontend ./Sea_sos-frontend
 
-    - name: Success Message
-      run: echo "🎉 CI Pipeline completed successfully!"
+    - name: Success
+      run: echo "✅ CI Pipeline completed successfully!"
