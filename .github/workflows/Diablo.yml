@@ -38,6 +38,15 @@ jobs:
         cache: 'yarn'
         cache-dependency-path: 'Sea_sos-frontend/yarn.lock'
 
+    - name: Frontend - Install missing dependencies
+      run: |
+        cd Sea_sos-frontend
+        # Install the missing dependencies
+        yarn add jwt-decode
+        yarn add --dev @babel/plugin-proposal-private-property-in-object
+        # Update browserslist database
+        npx update-browserslist-db@latest
+
     - name: Frontend - Install dependencies
       run: |
         cd Sea_sos-frontend
