@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: 
+      context: ./Sea_sos-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3030:3030"
+    environment:
+      - NODE_ENV=production
+      - PORT=3030
+    volumes:
+      - ./Sea_sos-backend/uploads:/usr/src/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./Sea_sos-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,19 +1,41 @@
-#  Dockerfile for Node Express Backend
+# Backend - Production Ready
+FROM node:18-alpine AS builder
 
-FROM node:16.17.0
-
-# Create App Directory
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# Install Dependencies
+# Copy package files first for better caching
 COPY package*.json ./
-RUN yarn
+COPY yarn.lock ./
 
-# Copy app source code
+# Install dependencies
+RUN yarn install --frozen-lockfile --production=false
+
+# Copy source code
 COPY . .
 
-# Exports
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Install production dependencies only
+RUN yarn install --frozen-lockfile --production=true
+
+# Copy app from builder stage
+COPY --from=builder --chown=nodejs:nodejs /usr/src/app ./
+
+# Switch to non-root user
+USER nodejs
+
 EXPOSE 3030
 
-CMD ["yarn","start"]
+# Use node directly instead of yarn start for production
+CMD ["node", "app.js"]
