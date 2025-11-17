@@ -14,9 +14,9 @@ COPY . .
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
+
 USER nodejs
 
 EXPOSE 3030
 
 CMD ["node", "app.js"]
-EOF
