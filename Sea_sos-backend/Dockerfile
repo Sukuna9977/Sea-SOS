@@ -1,25 +1,17 @@
-# Dockerfile for Node Express Backend
-FROM node:16.17.0-alpine
+FROM node:20-alpine as build
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodeuser -u 1001
-
-# Create App Directory
 WORKDIR /usr/src/app
 
-# Install Dependencies
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
-# Copy app source code
 COPY . .
+RUN npm run build
 
-# Change ownership to non-root user
-RUN chown -R nodeuser:nodejs /usr/src/app
-USER nodeuser
+FROM nginx:alpine
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exports
-EXPOSE 3030
+EXPOSE 80
 
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]
