@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import CustomToggle from '../../../dropdowns'
 import { clearAuthState } from '../../../../store/authSlice';
 import { useDispatch } from 'react-redux';
+import { useCookies } from "react-cookie";
 import 'lazysizes';
 // import { verifyToken } from '..\..\AuthContext.js';
 
@@ -24,6 +25,8 @@ import { useSelector } from 'react-redux';
 
 // Import selectors & action from setting store
 import * as SettingSelector from '../../../../store/setting/selectors'
+import axios from 'axios';
+import { verifyUser } from '../../../../services/user';
 
 const Header = memo((props) => {
     const navigate = useNavigate();
