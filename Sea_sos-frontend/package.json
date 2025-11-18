@@ -106,3 +106,8 @@
   },
   "proxy": "http://localhost:3030"
 }
+{
+  "scripts": {
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build && compress-cra"
+  }
+}
