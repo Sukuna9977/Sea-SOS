@@ -1,17 +1,17 @@
 FROM node:20-alpine as build
 
+# Create App Directory
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+# Install Dependencies
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN yarn
 
+# Copy app source code
 COPY . .
-RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /usr/src/app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Exports
+EXPOSE 3030
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["yarn","start"]
