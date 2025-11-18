@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 
 # Install Dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm ci --legacy-peer-deps
 
 # Copy app source code
 COPY . .
