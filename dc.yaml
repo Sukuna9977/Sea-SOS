@@ -2,9 +2,12 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
   pull_request:
-    branches: [ master, main ]
+    branches: [master, main]
+
+env:
+  CI: false
 
 jobs:
   build-and-test:
@@ -18,29 +21,45 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: |
+          Sea_sos-backend/package-lock.json
+          Sea_sos-frontend/package-lock.json
+
+    - name: Cache node modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          Sea_sos-backend/node_modules
+          Sea_sos-frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
     - name: Backend - Install dependencies
       run: |
         cd Sea_sos-backend
-        npm install
+        npm ci
 
     - name: Backend - Run tests
       run: |
         cd Sea_sos-backend
-        npm test || echo "No tests configured"
+        npm test -- --passWithNoTests
 
     - name: Frontend - Install dependencies
       run: |
         cd Sea_sos-frontend
-        npm install
+        npm ci
         npm install jwt-decode
         npm install --save-dev @babel/plugin-proposal-private-property-in-object
 
     - name: Frontend - Build
       run: |
         cd Sea_sos-frontend
-        CI=false
         npm run build
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Build Docker Images
       run: |
