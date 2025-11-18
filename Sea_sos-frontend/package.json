@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start && compress-cra",
-    "build": "react-scripts build && compress-cra",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build && compress-cra",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -105,9 +105,4 @@
     ]
   },
   "proxy": "http://localhost:3030"
-}
-{
-  "scripts": {
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build && compress-cra"
-  }
 }
