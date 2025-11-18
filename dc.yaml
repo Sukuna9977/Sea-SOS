@@ -35,16 +35,11 @@ jobs:
         npm install
         npm install jwt-decode
         npm install --save-dev @babel/plugin-proposal-private-property-in-object
-        # CREATE .env FILE
-        echo "CI=false" > .env
-        echo "✅ Created .env file with CI=false"
 
     - name: Frontend - Build
       run: |
         cd Sea_sos-frontend
-        # Verify .env exists
-        ls -la
-        cat .env
+        CI=false
         npm run build
 
     - name: Build Docker Images
