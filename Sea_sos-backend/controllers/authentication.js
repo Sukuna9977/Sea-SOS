@@ -1,5 +1,5 @@
 const User = require('../models/Users/user');
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcryptjs");
 const tokenForUser = require('../utils/tokengenerator');
 
 // Sign in
