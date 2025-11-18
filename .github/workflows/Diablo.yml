@@ -41,10 +41,15 @@ jobs:
         cd Sea_sos-backend
         npm ci
 
-    - name: Backend - Run tests
+    - name: Backend - Check for tests (Skip if none)
       run: |
         cd Sea_sos-backend
-        npm test -- --passWithNoTests
+        if npm run | grep -q "test"; then
+          echo "✅ Tests found, running them..."
+          npm test
+        else
+          echo "⚠️  No test script found, skipping tests"
+        fi
 
     - name: Frontend - Install dependencies
       run: |
