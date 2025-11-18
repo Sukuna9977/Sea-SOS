@@ -600,7 +600,7 @@ const Dashboard = () => {
     data: []
   }]);
 
-  const [options, setOptions] = useState({
+  const [options, _setOptions] = useState({
     chart: {
       type: 'line',
     },

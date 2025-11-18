@@ -4,10 +4,8 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 // router
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
-// store
 import { Provider, useDispatch, useSelector } from "react-redux";
 // reducer
-import { store } from "./store";
 import { setAuthState } from "./store/authSlice";
 import { initializeAuth } from './store/authSlice';
 import ProtectedAuthRoute from './routes/ProtectedAuthRoute'; // Adjust the path based on your file structure

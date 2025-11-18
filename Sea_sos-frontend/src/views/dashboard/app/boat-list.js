@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Modal, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import Card from '../../../components/Card';
 import { fetchData } from '../../../services/mix';
-import globalConfig from '../../../services/config';
 
 const BoatList = () => {
    const [boatList, setBoatList] = useState([]);
