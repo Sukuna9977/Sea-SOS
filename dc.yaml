@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Build Pipeline
 
 on:
   push:
@@ -54,19 +54,26 @@ jobs:
         npm install --save-dev @babel/plugin-proposal-private-property-in-object
 
     - name: Frontend - Build
-  run: |
-    cd Sea_sos-frontend
-    DISABLE_ESLINT_PLUGIN=true npm run build
-  env:
-    CI: false
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build Docker Images
       run: |
-        docker build -t sea-sos-backend ./Sea_sos-backend
-        docker build -t sea-sos-frontend ./Sea_sos-frontend
+        cd Sea_sos-frontend
+        DISABLE_ESLINT_PLUGIN=true npm run build
+      env:
+        CI: false
+
+    - name: Build Docker Images (But Don't Push)
+      run: |
+        docker build -t sea-sos-backend:${{ github.sha }} ./Sea_sos-backend
+        docker build -t sea-sos-frontend:${{ github.sha }} ./Sea_sos-frontend
+        echo "✅ Docker images built locally (ready for Jenkins to push)"
+
+    - name: Upload Build Artifacts to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: application-build-${{ github.sha }}
+        path: |
+          Sea_sos-backend/
+          Sea_sos-frontend/
+        retention-days: 7
 
     - name: Success
-      run: echo "✅ CI Pipeline completed successfully!"
+      run: echo "✅ CI Build Pipeline completed! Artifacts uploaded for Jenkins."
