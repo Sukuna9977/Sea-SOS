@@ -1,51 +1,103 @@
-# app.yaml - Complete application in one file
+# sea-sos-app.yaml - Complete Sea-SOS application
 apiVersion: v1
-kind: ConfigMap
+kind: Namespace
 metadata:
-  name: my-app-config
-data:
-  config.properties: |
-    server.port=8080
-    app.name=my-application
+  name: sea-sos
 ---
+# Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: sea-sos-backend
+  namespace: sea-sos
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: my-app
+      app: sea-sos-backend
   template:
     metadata:
       labels:
-        app: my-app
+        app: sea-sos-backend
     spec:
       containers:
-      - name: my-app
-        image: your-docker-repo/your-app:latest
+      - name: backend
+        image: psychioi/sea-sos-backend:33  # Your actual image
         ports:
-        - containerPort: 8080
+        - containerPort: 3030
         env:
-        - name: CONFIG_FILE
-          value: "/config/config.properties"
-        volumeMounts:
-        - name: config-volume
-          mountPath: /config
-      volumes:
-      - name: config-volume
-        configMap:
-          name: my-app-config
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3030"
+        - name: DB_CONNECTION_STRING
+          value: "mongodb://mongodb:27017/sea-sos"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
 ---
+# Backend Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service
+  name: sea-sos-backend-service
+  namespace: sea-sos
 spec:
   selector:
-    app: my-app
+    app: sea-sos-backend
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 3030
   type: ClusterIP
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sea-sos-frontend
+  namespace: sea-sos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sea-sos-frontend
+  template:
+    metadata:
+      labels:
+        app: sea-sos-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: psychioi/sea-sos-frontend:33  # Your actual image
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_API_URL
+          value: "http://sea-sos-backend-service"  # Uses Kubernetes service discovery
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+---
+# Frontend Service (External Access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: sea-sos-frontend-service
+  namespace: sea-sos
+spec:
+  selector:
+    app: sea-sos-frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: LoadBalancer  # Changed to LoadBalancer for external access
