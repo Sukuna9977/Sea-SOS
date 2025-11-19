@@ -96,7 +96,7 @@ spec:
           value: "production"
         - name: PORT
           value: "3030"
-        - name: DB_CONNECTION_STRING
+        - name: MONGODB_URI  # ⬅️ CHANGE THIS FROM DB_CONNECTION_STRING
           value: "mongodb://mongodb:27017/sea-sos"
         livenessProbe:
           httpGet:
