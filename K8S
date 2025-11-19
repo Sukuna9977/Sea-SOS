@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: 'https://github.com/Sukuna9977/Sea-SOS.git'  # Your actual repo
     path: 'k8s'
-    targetRevision: 'main'
+    targetRevision: 'master'
     directory:
       recurse: true
   destination:
