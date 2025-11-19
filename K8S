@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Sukuna9977/Sea-SOS.git'  # Your actual repo
-    path: 'k8s'
+    path: 'K8S'
     targetRevision: 'master'
     directory:
       recurse: true
