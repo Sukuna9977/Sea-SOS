@@ -1,10 +1,77 @@
-# sea-sos-app.yaml - Complete Sea-SOS application
+# sea-sos-app.yaml - COMPLETE VERSION
 apiVersion: v1
 kind: Namespace
 metadata:
   name: sea-sos
+
+# === DATABASE SECTION (ADD THIS) ===
 ---
-# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: sea-sos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: "sea-sos"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: sea-sos
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: sea-sos
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+  type: ClusterIP
+
+# === BACKEND SECTION (YOUR EXISTING) ===
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +89,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: psychioi/sea-sos-backend:33  # Your actual image
+        image: psychioi/sea-sos-backend:33
         ports:
         - containerPort: 3030
         env:
@@ -31,7 +98,7 @@ spec:
         - name: PORT
           value: "3030"
         - name: DB_CONNECTION_STRING
-          value: "mongodb://mongodb:27017/sea-sos"
+          value: "mongodb://mongodb:27017/sea-sos"  # This now points to real service!
         resources:
           requests:
             memory: "256Mi"
@@ -40,7 +107,6 @@ spec:
             memory: "512Mi"
             cpu: "500m"
 ---
-# Backend Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -53,8 +119,9 @@ spec:
   - port: 80
     targetPort: 3030
   type: ClusterIP
+
+# === FRONTEND SECTION (YOUR EXISTING) ===
 ---
-# Frontend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,12 +139,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: psychioi/sea-sos-frontend:33  # Your actual image
+        image: psychioi/sea-sos-frontend:33
         ports:
         - containerPort: 3000
         env:
         - name: REACT_APP_API_URL
-          value: "http://sea-sos-backend-service"  # Uses Kubernetes service discovery
+          value: "http://sea-sos-backend-service.sea-sos.svc.cluster.local"
         - name: PORT
           value: "3000"
         resources:
@@ -88,7 +155,6 @@ spec:
             memory: "256Mi"
             cpu: "250m"
 ---
-# Frontend Service (External Access)
 apiVersion: v1
 kind: Service
 metadata:
@@ -100,4 +166,35 @@ spec:
   ports:
   - port: 80
     targetPort: 3000
-  type: LoadBalancer  # Changed to LoadBalancer for external access
+  type: ClusterIP
+
+# === INGRESS SECTION (ADD THIS) ===
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sea-sos-ingress
+  namespace: sea-sos
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: "sea-sos.192.168.1.200.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sea-sos-frontend-service
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: sea-sos-backend-service
+            port:
+              number: 80
