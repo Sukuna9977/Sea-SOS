@@ -34,6 +34,30 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// === ADD HEALTH CHECKS HERE ===
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+app.get('/ready', (req, res) => {
+  res.status(200).json({ 
+    status: 'ready', 
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Sea-SOS Backend API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use('/api/urgences', urgenceRouter);
 app.use('/api/users', usersRouter);
