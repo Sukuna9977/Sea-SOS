@@ -1,30 +1,22 @@
-# Frontend - Multi-stage build
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
-# Working directory
 WORKDIR /usr/src/app
 
+# Copy package files
 COPY package*.json ./
-COPY yarn.lock ./
 
-# Install dependencies
-RUN npm install
+# Delete any existing lock files and do fresh install
+RUN rm -f package-lock.json yarn.lock && npm install
 
 # Copy source code
 COPY . .
 
 # Build the app
-RUN yarn build
+RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Install serve to run the built app
+RUN npm install -g serve
 
-# Copy built app to nginx
-COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+EXPOSE 3000
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "build", "-l", "3000"]
