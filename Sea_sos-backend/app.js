@@ -7,26 +7,23 @@ const http = require('http');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const cors = require('cors');
-const { io } = require("./utils/socketjs");
 
 const usersRouter = require('./routes/Users/userRoutes');
 const urgenceRouter = require('./routes/urgence/urgence');
 const authRouter = require('./routes/authentificationRoutes');
 const resetPassword = require('./routes/resetPasswordRoute');
-const patrolRouter = require('./routes/patrolRoutes');  // Add this line
+const patrolRouter = require('./routes/patrolRoutes');
 const boatRouter = require('./routes/boatRoutes'); 
 
 var app = express();
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:54287',"http://localhost:55218","http://10.0.2.2"];
 
-app.use(cors({
- 
-}));
+app.use(cors({}));
 app.enable('trust proxy');
 
 app.use(logger('dev'));
 app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error stack
+  console.error(err.stack);
   res.status(500).json({ error: err.message });
 });
 app.use(express.json());
@@ -34,7 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// === ADD HEALTH CHECKS HERE ===
+// === ADD HEALTH CHECKS ===
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
@@ -63,13 +60,14 @@ app.use('/api/urgences', urgenceRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/resetpwd', resetPassword);
-app.use('/api/patrols', patrolRouter);  // Add this line
-app.use('/api/boats', boatRouter);  // Add this line
+app.use('/api/patrols', patrolRouter);
+app.use('/api/boats', boatRouter);
 app.use('/uploads', express.static('uploads'));
 
-// Connect to MongoDB
+// Connect to MongoDB (with error handling)
 mongoose.set('strictQuery', true);
-mongoose.connect(process.env.MONGODB_URI, {
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -78,8 +76,9 @@ mongoose.connect(process.env.MONGODB_URI, {
   })
   .catch((err) => {
     console.log('Cannot connect to the database!', err);
-    process.exit();
+    // Don't exit - allow app to run without DB
   });
+}
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -92,7 +91,16 @@ app.use(function (err, req, res, next) {
 });
 
 app.set('port', 3030);
-var server = http.createServer(app);
-server.listen(3030);
-io.attach(server);
+
+// Only start server if this file is run directly
+if (require.main === module) {
+  const server = http.createServer(app);
+  const { io } = require("./utils/socketjs");
+  io.attach(server);
+  
+  server.listen(3030, () => {
+    console.log('Server running on port 3030');
+  });
+}
+
 module.exports = app;
