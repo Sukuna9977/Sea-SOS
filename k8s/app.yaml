@@ -88,7 +88,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: psychioi/sea-sos-backend:33
+        image: psychioi/sea-sos-backend:34
         ports:
         - containerPort: 3030
         env:
@@ -150,7 +150,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: psychioi/sea-sos-frontend:33
+        image: psychioi/sea-sos-frontend:34
         ports:
         - containerPort: 3000
         env:
