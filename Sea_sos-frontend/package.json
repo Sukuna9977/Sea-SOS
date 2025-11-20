@@ -64,8 +64,7 @@
     "react-slider": "^2.0.1",
     "react-sortablejs": "^6.0.0",
     "react-transition-group": "^4.4.2",
-    "react-use": "^17.4.0",
-    "usehooks-ts": "^3.1.0"
+    "recompose": "^0.30.0",
     "redux": "^4.1.1",
     "smooth-scrollbar": "^8.6.3",
     "socket.io-client": "^4.7.0",
