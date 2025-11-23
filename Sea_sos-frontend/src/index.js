@@ -10,6 +10,8 @@ import { setAuthState } from "./store/authSlice";
 import { initializeAuth } from './store/authSlice';
 import ProtectedAuthRoute from './routes/ProtectedAuthRoute'; // Adjust the path based on your file structure
 
+import { store } from './store';
+
 // Import your components
 const Google = React.lazy(() => import("./views/dashboard/maps/google"));
 const Default = React.lazy(() => import("./layouts/dashboard/default"));
