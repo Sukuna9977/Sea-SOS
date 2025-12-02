@@ -45,10 +45,10 @@ jobs:
       run: |
         cd Sea_sos-backend
         if npm run | grep -q "test"; then
-          echo "✅ Tests found, running them..."
+          echo " Tests found, running them..."
           npm test
         else
-          echo "⚠️  No test script found, skipping tests"
+          echo "  No test script found, skipping tests"
         fi
 
     - name: Frontend - Install dependencies
@@ -67,7 +67,7 @@ jobs:
       run: |
         docker build -t sea-sos-backend:${{ github.sha }} ./Sea_sos-backend
         docker build -t sea-sos-frontend:${{ github.sha }} ./Sea_sos-frontend
-        echo "✅ Docker images built successfully"
+        echo " Docker images built successfully"
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
@@ -79,4 +79,4 @@ jobs:
         retention-days: 7
 
     - name: Success
-      run: echo "✅ CI/CD Pipeline completed successfully! Artifacts uploaded."
+      run: echo " CI/CD Pipeline completed successfully! Artifacts uploaded."
