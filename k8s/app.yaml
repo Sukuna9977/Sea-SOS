@@ -150,7 +150,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: psychioi/sea-sos-frontend:39
+        image: psychioi/sea-sos-frontend:17
         ports:
         - containerPort: 3000
         env:
