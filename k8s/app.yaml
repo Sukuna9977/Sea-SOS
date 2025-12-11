@@ -1,4 +1,3 @@
-# sea-sos-app.yaml 
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -9,26 +8,35 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: postgresql
   namespace: sea-sos
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb
+      app: postgresql
   template:
     metadata:
       labels:
-        app: mongodb
+        app: postgresql
     spec:
       containers:
-      - name: mongodb
-        image: mongo:6.0
+      - name: postgresql
+        image: postgres:15-alpine
         ports:
-        - containerPort: 27017
+        - containerPort: 5432
         env:
-        - name: MONGO_INITDB_DATABASE
+        - name: POSTGRES_DB
           value: "sea-sos"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
         resources:
           requests:
             memory: "256Mi"
@@ -37,16 +45,26 @@ spec:
             memory: "512Mi"
             cpu: "500m"
         volumeMounts:
-        - name: mongodb-data
-          mountPath: /data/db
+        - name: postgresql-data
+          mountPath: /var/lib/postgresql/data
       volumes:
-      - name: mongodb-data
-        emptyDir: {}  
+      - name: postgresql-data
+        emptyDir: {}
+---
+# Secret for PostgreSQL password
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: sea-sos
+type: Opaque
+stringData:
+  password: "your-secure-password-here"  # Change this!
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongodb-pvc
+  name: postgresql-pvc
   namespace: sea-sos
 spec:
   accessModes:
@@ -59,14 +77,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: postgresql
   namespace: sea-sos
 spec:
   selector:
-    app: mongodb
+    app: postgresql
   ports:
-  - port: 27017
-    targetPort: 27017
+  - port: 5432
+    targetPort: 5432
   type: ClusterIP
 
 # === BACKEND SECTION ===
@@ -88,7 +106,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: psychioi/sea-sos-backend:42
+        image: 
         ports:
         - containerPort: 3030
         env:
@@ -150,7 +168,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: psychioi/sea-sos-frontend:17
+        image: 
         ports:
         - containerPort: 3000
         env:
