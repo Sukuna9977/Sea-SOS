@@ -1,91 +1,91 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: sea-sos
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+ # name: sea-sos
 
 # === DATABASE SECTION ===
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgresql
-  namespace: MOB
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgresql
-  template:
-    metadata:
-      labels:
-        app: postgresql
-    spec:
-      containers:
-      - name: postgresql
-        image: postgres:15-alpine
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_DB
-          value: "sea-sos"
-        - name: POSTGRES_USER
-          value: "postgres"
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: password
-        - name: PGDATA
-          value: "/var/lib/postgresql/data/pgdata"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        volumeMounts:
-        - name: postgresql-data
-          mountPath: /var/lib/postgresql/data
-      volumes:
-      - name: postgresql-data
-        emptyDir: {}
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+ # name: postgresql
+  #namespace: MOB
+#spec:
+ # replicas: 1
+  #selector:
+   # matchLabels:
+    #  app: postgresql
+  #template:
+   # metadata:
+    #  labels:
+     #   app: postgresql
+   # spec:
+    #  containers:
+     # - name: postgresql
+      #  image: postgres:15-alpine
+       # ports:
+       # - containerPort: 5432
+       # env:
+       # - name: POSTGRES_DB
+        #  value: "sea-sos"
+        #- name: POSTGRES_USER
+         # value: "postgres"
+        #- name: POSTGRES_PASSWORD
+         # valueFrom:
+          #  secretKeyRef:
+           #   name: postgres-secret
+            #  key: password
+        #- name: PGDATA
+         # value: "/var/lib/postgresql/data/pgdata"
+        #resources:
+         # requests:
+          #  memory: "256Mi"
+           # cpu: "250m"
+          #limits:
+           # memory: "512Mi"
+       #    # cpu: "500m"
+        #volumeMounts:
+        #- name: postgresql-data
+        #  mountPath: /var/lib/postgresql/data
+      #volumes:
+      #- name: postgresql-data
+       # emptyDir: {}
 ---
 # Secret for PostgreSQL password
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-  namespace: sea-sos
-type: Opaque
-stringData:
-  password: "your-secure-password-here"  # Change this!
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgresql-pvc
-  namespace: sea-sos
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: longhorn
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgresql
-  namespace: sea-sos
-spec:
-  selector:
-    app: postgresql
-  ports:
-  - port: 5432
-    targetPort: 5432
-  type: ClusterIP
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: postgres-secret
+#  namespace: sea-sos
+#type: Opaque
+#stringData:
+#  password: "your-secure-password-here"  # Change this!
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+ # name: postgresql-pvc
+ # namespace: sea-sos
+#spec:
+#  accessModes:
+ #   - ReadWriteOnce
+  #resources:
+   # requests:
+    #  storage: 5Gi
+ # storageClassName: longhorn
+#--
+#apiVersion: v1
+#kind: Service
+#metadata:
+ # name: postgresql
+  #namespace: sea-sos
+#spec:
+#  selector:
+ #   app: postgresql
+  #ports:
+  #- port: 5432
+   # targetPort: 5432
+  #type: ClusterIP
 
 # === BACKEND SECTION ===
 ---
